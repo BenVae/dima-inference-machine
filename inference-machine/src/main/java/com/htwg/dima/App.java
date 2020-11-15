@@ -12,7 +12,7 @@ import edu.princeton.cs.introcs.StdOut;
 public class App {
     public static void main(String[] args) {
 
-        InferenceResult ask = folfcAskIsWestCiminal();
+        InferenceResult ask = folfcAskPoolClosed();
         
         StdOut.print(InferenceResultPrinter.printInferenceResult(ask));
     }
@@ -51,4 +51,88 @@ public class App {
 
         return folfcAsk.ask(kb, proofQuery);
     }
+
+    static InferenceResult folfcAskIsAFrog(){
+        FOLFCAsk folfcAsk = new FOLFCAsk();
+
+        FOLDomain folDomain = new FOLDomain();
+        folDomain.addConstant("Frog");
+        folDomain.addConstant("Canary");
+        folDomain.addConstant("Green");
+        folDomain.addConstant("Yellow");
+        folDomain.addConstant("Fritz");
+
+        folDomain.addPredicate("Croaks");
+        folDomain.addPredicate("Chirps");
+        folDomain.addPredicate("Sings");
+        folDomain.addPredicate("EatsFlies");
+        folDomain.addPredicate("IsA");
+        folDomain.addPredicate("Is");
+    
+
+        FOLKnowledgeBase kb = new FOLKnowledgeBase(folDomain);
+
+        kb.tell("((Croaks(x) AND EatsFlies(x)) => IsA(x,Frog))");
+        kb.tell("((Chirps(x) AND Sings(x)) => IsA(x,Canary))");
+
+        kb.tell("( IsA(x,Frog) => Is(Green))");
+        kb.tell("( IsA(x,Canary) => Is(Yellow))");
+        kb.tell("Croaks(Fritz)");
+        kb.tell("EatsFlies(Fritz)");
+
+        FOLParser parser = new FOLParser(folDomain);
+        Sentence proofQuery = parser.parse("IsA(Fritz, Frog)");
+
+        return folfcAsk.ask(kb, proofQuery);
+    }
+    
+    static InferenceResult folfcAskSunburn(){
+        FOLFCAsk folfcAsk = new FOLFCAsk();
+
+        FOLDomain folDomain = new FOLDomain();
+        folDomain.addConstant("I");
+
+        folDomain.addPredicate("GoSwimming");
+        folDomain.addPredicate("StayInSunTooLong");
+        folDomain.addPredicate("GetSunburn");
+    
+
+        FOLKnowledgeBase kb = new FOLKnowledgeBase(folDomain);
+
+        kb.tell("( GoSwimming(x) => StayInSunTooLong(x))");
+        kb.tell("( StayInSunTooLong(x) => GetSunburn(x))");
+        kb.tell("( GoSwimming(I) )");
+
+        FOLParser parser = new FOLParser(folDomain);
+        Sentence proofQuery = parser.parse("GetSunburn(I)");
+
+        return folfcAsk.ask(kb, proofQuery);
+    }
+
+    static InferenceResult folfcAskPoolClosed(){
+        FOLFCAsk folfcAsk = new FOLFCAsk();
+
+        FOLDomain folDomain = new FOLDomain();
+        folDomain.addConstant("We");
+        folDomain.addConstant("Today");
+
+        folDomain.addPredicate("SunnyThisAfternoon");
+        folDomain.addPredicate("WillGoSwimming");
+        folDomain.addPredicate("TakeCanoeTrip");
+        folDomain.addPredicate("HomeBySunset");
+    
+
+        FOLKnowledgeBase kb = new FOLKnowledgeBase(folDomain);
+
+        kb.tell("( NOT SunnyThisAfternoon(Today))");
+        kb.tell("( WillGoSwimming(x) => SunnyThisAfternoon(y))");
+        kb.tell("( NOT WillGoSwimming(x) => TakeCanoeTrip(x) )");
+        kb.tell("( TakeCanoeTrip(x) => HomeBySunset(x) )");
+
+        FOLParser parser = new FOLParser(folDomain);
+        Sentence proofQuery = parser.parse("HomeBySunset(We)");
+
+        return folfcAsk.ask(kb, proofQuery);
+    }
 }
+
